@@ -23,9 +23,12 @@
 
   <property name="jar" value="portecle.jar" />
   <property name="doc" value="${root}/doc" />
+  
+  <property name="bcprov.jarname" value="bcprov-jdk15on-151.jar" />
+  <property name="bcpkix.jarname" value="bcpkix-jdk15on-151.jar" />
 
-  <property name="bcprov.jar" value="${lib}/bcprov-jdk15on-151.jar" />
-  <property name="bcpkix.jar" value="${lib}/bcpkix-jdk15on-151.jar" />
+  <property name="bcprov.jar" value="${lib}/${bcprov.jarname}" />
+  <property name="bcpkix.jar" value="${lib}/${bcpkix.jarname}" />
   <property name="pack200.jar" value="${lib}/deployment-ant-pack200-1.0.jar"/>
 
   <property name="build.debug" value="true" />
@@ -47,6 +50,11 @@
 
   <typedef resource="org/jdesktop/deployment/ant/pack200/antlib.xml"
            classpath="${pack200.jar}"/>
+       
+  <taskdef
+    name="osxbundle"
+    classname="com.oracle.appbundler.AppBundlerTask"   
+    classpath="lib/appbundler-1.0.jar" />
 
   <presetdef name="signjar" uri="urn:net.sf.portecle">
     <signjar
@@ -262,6 +270,27 @@
         <include name="src/**" />
       </zipfileset>
     </p:zip>
+  </target>
+  
+  <target name="osxbundle" depends="jar" >
+    <mkdir dir="osxbundle"/>
+	
+	<echo message="${root} ${bcpkix.jar} ${bcprov.jar} ${build}/${jar} " />
+	
+    <osxbundle
+      outputdirectory="."
+      name="Portecle"
+      shortversion="${version}"
+      displayname="Portecle"
+      identifier="net.sf.portecle"
+      icon="src/icons/portecle.icns"
+      mainclassname="net.sf.portecle.FPortecle">
+      <classpath dir="${root}" >
+		<include name="lib/${bcprov.jarname}" />
+		<include name="lib/${bcpkix.jarname}" />
+        <include name="build/${jar}" />
+      </classpath>
+    </osxbundle>
   </target>
 
   <target name="dist" depends="srcdist,bindist"
